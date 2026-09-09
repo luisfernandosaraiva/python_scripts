@@ -25,11 +25,23 @@ Nenhum valor foi estimado ou arredondado além do que consta no documento.
 
 ## Como abrir
 
-O arquivo é autocontido — basta abrir `dashboard.html` no navegador. A única dependência
-externa é a família IBM Plex, servida pelo Google Fonts, com fallback para a pilha do
-sistema quando não houver rede.
+```bash
+python3 observatorio_ppg/serve.py          # http://localhost:8000, abre o navegador
+python3 observatorio_ppg/serve.py 8080     # outra porta
+python3 observatorio_ppg/serve.py --no-browser
+```
 
-Tema claro e escuro seguem a preferência do sistema.
+Só a biblioteca padrão do Python — nada a instalar. `Ctrl+C` encerra.
+
+`dashboard.html` guarda o corpo da página (sem `<html>`/`<head>`/`<body>`), porque é a
+mesma fonte publicada como artifact; `serve.py` envolve esse corpo no esqueleto mínimo do
+documento em tempo de resposta, para que exista uma única fonte de verdade. Por isso,
+abrir `dashboard.html` direto pelo `file://` funciona na maioria dos navegadores, mas o
+caminho previsto é o servidor.
+
+A única dependência externa é a família IBM Plex, servida pelo Google Fonts, com fallback
+para a pilha do sistema quando não houver rede. Tema claro e escuro seguem a preferência
+do sistema.
 
 ## Notas de implementação
 
