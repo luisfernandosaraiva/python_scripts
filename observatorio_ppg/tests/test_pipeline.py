@@ -236,3 +236,45 @@ class OrientacaoDuplicadaTest(unittest.TestCase):
                     coorientacao = [o for o in orientacoes if o.papel == "coorientacao"]
                     self.assertEqual(len(coorientacao), 1,
                                      "o papel do XML nao pode se perder no merge")
+
+
+class DoctorTest(unittest.TestCase):
+    """A conferencia de contrato tem de acusar campo que sumiu da API.
+
+    O conector do BrCris foi escrito contra um formato observado, nao publicado.
+    Se o Ibict renomear `lattesId`, o pipeline degradaria em silencio — estes
+    testes garantem que o `doctor` acusa antes da coleta.
+    """
+
+    def test_contrato_completo_passa(self):
+        from obsppg.doctor import OK, checar_brcris
+
+        estado, detalhe = checar_brcris("Ana Ribeiro Alencar", FakeBrCris())
+        self.assertEqual(estado, OK)
+        self.assertIn("lattesId ok", detalhe)
+        self.assertIn("4 obras", detalhe)
+
+    def test_campo_essencial_ausente_vira_falha(self):
+        from obsppg.doctor import FALHA, checar_brcris
+
+        api = FakeBrCris()
+        original = api.buscar
+
+        def sem_lattes(*a, **kw):
+            docs = [dict(d) for d in original(*a, **kw)]
+            for doc in docs:
+                doc.pop("lattesId", None)
+            return docs
+
+        api.buscar = sem_lattes
+        estado, detalhe = checar_brcris("Ana Ribeiro Alencar", api)
+        self.assertEqual(estado, FALHA)
+        self.assertIn("lattesId", detalhe)
+        self.assertIn("brcris.py", detalhe)
+
+    def test_nome_sem_correspondencia_vira_aviso(self):
+        from obsppg.doctor import ALERTA, checar_brcris
+
+        estado, detalhe = checar_brcris("Pessoa Que Nao Existe", FakeBrCris())
+        self.assertEqual(estado, ALERTA)
+        self.assertIn("nao retornou ninguem", detalhe)

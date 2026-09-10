@@ -35,12 +35,42 @@ A interface abre com **dados de demonstração** — pessoas e obras fictícias,
 das fixtures de teste, marcadas como tal na própria tela. Nenhum registro de
 pesquisador real é distribuído no repositório.
 
-## Coletando de verdade
+## Piloto do PPGBIOTEC em um comando
+
+A lista nominal dos 11 docentes indicados já está em `docentes_ppgbiotec.txt`
+(confira com a secretaria antes de rodar). O bootstrap executa a sequência
+validada pela sondagem:
+
+```bash
+./tools/piloto_ppgbiotec.sh
+```
+
+Ele **confere as fontes antes de tocar no banco** e para se alguma estiver fora do
+contrato — coletar com a API mudada grava dado incompleto, e dado incompleto no raw
+contamina todo recálculo posterior. Os passos que dependem de arquivo baixado
+(Qualis, CAPES, XML do Lattes) rodam se o arquivo existir e avisam quando faltam,
+dizendo o que se perde em cada caso.
+
+## Conferindo as fontes
+
+```bash
+python -m obsppg doctor
+python -m obsppg doctor --nome "Elisete Maria de Freitas"
+```
+
+O `doctor` não pergunta só se a API respondeu: confere **campo a campo** se a
+resposta traz o que o conector consome (`id`, `name`, `lattesId` são essenciais;
+`orcid`, `citationName`, `authorOf` viram aviso). Se o Ibict renomear um campo, a
+mensagem diz qual — em vez de o pipeline degradar em silêncio. Sai com código 2
+quando alguma fonte falha, então serve em agendador e em CI.
+
+## Coletando passo a passo
 
 A coleta é sempre linha de comando, nunca um botão dentro da interface: assim roda
 agendada, com log, e pode ser reexecutada sem duplicar nada.
 
 ```bash
+python -m obsppg doctor              # as fontes respondem no formato esperado?
 python -m obsppg init
 python -m obsppg ppg --sigla PPGBIOTEC --nome "Biotecnologia" \
     --codigo 42014018003P9 --area BIOTECNOLOGIA
@@ -116,16 +146,26 @@ Lattes (frente administrativa) e a regra de desempate para os campos
 `publicationDate` com mais de um ano — hoje o padrão é o menor ano, e a obra fica
 marcada como ambígua na ficha.
 
+## O que ainda não foi verificado contra a API real
+
+O conector do BrCris foi escrito contra o formato **observado** na sondagem de
+09/09/2026 — o Ibict não publica nem documenta essa API. A tubulação inteira está
+provada com um cliente falso nesse formato, mas a primeira coleta de verdade é o
+teste que falta. É para encurtar essa descoberta que existe o `doctor`: rode-o
+antes da primeira coleta e ele diz, em uma linha, se o contrato ainda vale.
+
 ## Testes
 
 ```bash
 python -m unittest discover -s tests -t .
 ```
 
-11 testes, sem rede: identidade com zero à esquerda, obra em coautoria interna,
+14 testes, sem rede: identidade com zero à esquerda, obra em coautoria interna,
 ano ambíguo, raw idempotente, recoleta sem duplicar, XML completando o que faltava,
 Qualis e CAPES por chave correta, recusa de sobrescrever com vazio, fila de revisão
-humana, dedup de orientação entre fontes (nas duas ordens) e exportação.
+humana, dedup de orientação entre fontes (nas duas ordens), exportação, e as três
+conferências de contrato do `doctor` (formato completo, campo essencial ausente,
+nome sem correspondência).
 
 As fixtures usam pessoas e obras **fictícias** de propósito: fixture de teste não
 carrega registro de pesquisador real.

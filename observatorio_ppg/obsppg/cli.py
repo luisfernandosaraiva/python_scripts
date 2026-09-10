@@ -4,6 +4,7 @@ A coleta e sempre CLI ou agendada — nunca um botao dentro da interface. Cada
 comando abre um `sync_run`, grava raw imutavel e sai com codigo != 0 se a fonte
 falhar, para que um agendador perceba.
 
+    python -m obsppg doctor
     python -m obsppg init
     python -m obsppg ppg --sigla PPGBIOTEC --nome "Biotecnologia" \
         --codigo 42014018003P9 --area BIOTECNOLOGIA
@@ -213,6 +214,12 @@ def cmd_export(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_doctor(args: argparse.Namespace) -> int:
+    from .doctor import rodar
+
+    return rodar(args.nome)
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     if not CONFIG.banco.exists():
         print(f"banco ainda nao existe em {CONFIG.banco} — rode `init`")
@@ -297,6 +304,11 @@ def construir_parser() -> argparse.ArgumentParser:
     e.add_argument("--qualis-ciclo")
     e.add_argument("--qualis-area")
     e.set_defaults(func=cmd_export)
+
+    d = sub.add_parser("doctor", help="confere se as fontes respondem no contrato esperado")
+    d.add_argument("--nome", default="Noeli Juarez Ferla",
+                   help="nome usado na busca de prova contra o BrCris")
+    d.set_defaults(func=cmd_doctor)
 
     sub.add_parser("status", help="o que ja entrou no banco").set_defaults(func=cmd_status)
     return p

@@ -112,6 +112,10 @@ class FakeBrCris(BrCris):
         return [d for d in colecao.values()
                 if alvo in str(d.get("name", d.get("title", ""))).lower()]
 
+    def stats(self, indice: str):
+        self.chamadas.append(f"stats:{indice}")
+        return {"index": self.indice(indice), "count": 1812408}
+
     def orientacoes(self, advisor_id: str) -> list[dict]:
         self.chamadas.append(f"orientacoes:{advisor_id}")
         return ORIENTACOES.get(advisor_id, [])

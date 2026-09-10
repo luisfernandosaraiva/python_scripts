@@ -1,0 +1,21 @@
+# PPGBIOTEC — Univates · codigo CAPES 42014018003P9 · area BIOTECNOLOGIA
+#
+# Lista nominal dos 11 docentes indicados para o piloto, conforme o Anexo 12 do
+# documento de decisao. Um nome por linha; `#` comenta.
+#
+# CONFIRA COM A SECRETARIA ANTES DE COLETAR. Esta lista e' o ponto de partida do
+# piloto, nao a fonte de verdade do vinculo: quem e' permanente, colaborador ou
+# visitante, e em que ano, vem da secretaria do PPG ou dos dados abertos da CAPES
+# (`python -m obsppg ingest capes`). O BrCris nao tem esse dado.
+
+Noeli Juarez Ferla
+Elisete Maria de Freitas
+Liana Johann
+Claucia Fernanda Volken de Souza
+Lucélia Hoehne
+Luís Fernando Saraiva Macedo Timmers
+Daiane Heidrich
+Ivan Cunha Bustamante Filho
+Verônica Contini
+Daniel Neutzling Lehn
+Jeferson Camargo de Lima
