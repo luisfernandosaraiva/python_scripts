@@ -146,13 +146,23 @@ Lattes (frente administrativa) e a regra de desempate para os campos
 `publicationDate` com mais de um ano — hoje o padrão é o menor ano, e a obra fica
 marcada como ambígua na ficha.
 
-## O que ainda não foi verificado contra a API real
+## O contrato do BrCris, e como o cliente lida com ele
 
-O conector do BrCris foi escrito contra o formato **observado** na sondagem de
-09/09/2026 — o Ibict não publica nem documenta essa API. A tubulação inteira está
-provada com um cliente falso nesse formato, mas a primeira coleta de verdade é o
-teste que falta. É para encurtar essa descoberta que existe o `doctor`: rode-o
-antes da primeira coleta e ele diz, em uma linha, se o contrato ainda vale.
+O Ibict não publica nem documenta essa API. O formato do corpo do `/api/search`
+observado na sondagem de 09/09/2026 (`requestState`/`queryConfig`) **foi recusado
+na primeira coleta real**, com `400 Search term or filters are required` — o
+servidor procura `searchTerm` em outro lugar.
+
+Em vez de chutar um formato por vez, o cliente **negocia**: tenta os candidatos
+plausíveis em ordem, guarda o que o servidor aceitou e usa só ele daí em diante.
+A leitura da resposta é igualmente tolerante — aceita tanto `{"results": [...]}`
+do Search-UI quanto `{"hits": {"hits": [...]}}` de um proxy fino do Elasticsearch.
+O `doctor` informa qual formato passou; se nenhum passar, ele imprime o que cada
+tentativa recebeu de volta, que é o suficiente para acertar o conector de uma vez.
+
+Vale o mesmo aviso para o resto: `index-stats` e `/api/orientacoes` já são
+conferidos pelo `doctor`, mas `consulta-autores`, `consulta-publicacoes` e
+`/api/patent` só serão exercitados na coleta.
 
 ## Testes
 

@@ -31,14 +31,22 @@ class Resultado:
         self.fonte, self.estado, self.detalhe = fonte, estado, detalhe
 
     def imprimir(self) -> None:
-        print(f"  [{self.estado}] {self.fonte:<22} {self.detalhe}")
+        import shutil
+        import textwrap
+
+        largura = max(60, min(shutil.get_terminal_size((100, 24)).columns, 110))
+        recuo = " " * 33
+        linhas = textwrap.wrap(self.detalhe, width=largura - 33) or [""]
+        print(f"  [{self.estado}] {self.fonte:<22} {linhas[0]}")
+        for linha in linhas[1:]:
+            print(f"{recuo}{linha}")
 
 
 def _tentar(fonte: str, funcao: Callable[[], tuple[str, str]]) -> Resultado:
     try:
         estado, detalhe = funcao()
     except ErroDeFonte as err:
-        return Resultado(fonte, FALHA, str(err)[:160])
+        return Resultado(fonte, FALHA, str(err))
     except Exception as err:  # rede, DNS, TLS
         return Resultado(fonte, FALHA, f"{type(err).__name__}: {str(err)[:130]}")
     return Resultado(fonte, estado, detalhe)
@@ -68,11 +76,21 @@ def checar_brcris(nome: str, api: BrCris | None = None) -> tuple[str, str]:
         return FALHA, (f"{total}resposta sem {', '.join(faltando)} — o contrato do "
                        "conector mudou; ajuste obsppg/ingest/brcris.py")
     obras = len(lista(doc.get("authorOf")))
-    recado = (f"{total}'{nome}' resolvido · lattesId ok · {obras} obras em authorOf")
+    formato = f" · formato do corpo: {api.formato}" if api.formato else ""
+    recado = f"{total}'{nome}' resolvido · lattesId ok · {obras} obras em authorOf{formato}"
     if ausentes:
         recado += f" · sem {', '.join(ausentes)}"
-        return ALERTA, recado
-    return OK, recado
+
+    # /api/orientacoes e' a dimensao de formacao do indice. Conferir agora sai de
+    # graca — ja temos um person_id resolvido — e evita descobrir no meio da coleta.
+    pessoa_id = str(primeiro(doc.get("id")) or "")
+    try:
+        orientandos = api.orientacoes(pessoa_id)
+    except ErroDeFonte as err:
+        return ALERTA, (recado + f" · /api/orientacoes falhou ({str(err)[:80]}): "
+                        "a dimensao de formacao ficaria vazia")
+    recado += f" · {len(orientandos)} orientandos em /api/orientacoes"
+    return (ALERTA if ausentes else OK), recado
 
 
 def checar_openalex() -> tuple[str, str]:

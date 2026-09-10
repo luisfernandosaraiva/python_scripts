@@ -143,34 +143,87 @@ class BrCris(ClienteHTTP):
     def __init__(self, base: str | None = None, carga: str | None = None, **kw: Any):
         super().__init__(base or CONFIG.brcris_base, **kw)
         self.carga = carga or CONFIG.brcris_carga
+        # preenchido na primeira busca bem-sucedida; ver FORMATOS
+        self.formato: str | None = None
 
     def indice(self, nome: str) -> str:
         return f"brc-{self.carga}-{nome}-v2"
 
     # ---- busca principal ---- #
+    # O corpo aceito pelo /api/search nao e' publicado. A sondagem observou o
+    # formato `requestState`/`queryConfig` do Elastic Search-UI, mas a primeira
+    # coleta real recebeu 400 "Search term or filters are required" — ou seja, o
+    # servidor procura os campos em outro lugar. Em vez de chutar um formato por
+    # vez a cada ida e volta, o cliente **negocia**: tenta os candidatos em ordem,
+    # guarda o que funcionou e usa so ele daí em diante.
+    FORMATOS = ("requestState", "plano", "state", "misto")
+
+    def _corpo(self, formato: str, indice: str, termo: str, filtros: list[dict],
+               campos: Sequence[str], busca_em: Sequence[str], tamanho: int,
+               pagina: int) -> dict:
+        estado = {
+            "searchTerm": termo,
+            "filters": filtros,
+            "resultsPerPage": tamanho,
+            "current": pagina,
+        }
+        config = {
+            "index": self.indice(indice),
+            "search_fields": {c: {} for c in busca_em},
+            "result_fields": {c: {"raw": {}} for c in campos},
+            "facets": {},
+        }
+        if formato == "requestState":
+            return {"requestState": estado, "queryConfig": config}
+        if formato == "plano":
+            return {**estado, **config}
+        if formato == "state":
+            return {"state": estado, "queryConfig": config}
+        return {"requestState": estado, "queryConfig": config, **estado}
+
+    @staticmethod
+    def _extrair(dados: Any) -> list[dict]:
+        """Aceita as formas plausiveis de resposta, nao so a observada.
+
+        Search-UI devolve `{"results": [...]}`; um proxy fino do Elasticsearch
+        devolve `{"hits": {"hits": [{"_id", "_source"}]}}`. As duas viram a mesma
+        lista de documentos, e `valor()` ja tolera campo cru ou embrulhado.
+        """
+        if isinstance(dados, list):
+            return dados
+        if isinstance(dados, dict):
+            for chave in ("results", "data", "documents", "items"):
+                if isinstance(dados.get(chave), list):
+                    return dados[chave]
+            hits = dados.get("hits")
+            if isinstance(hits, dict) and isinstance(hits.get("hits"), list):
+                return [{**(h.get("_source") or {}), "id": h.get("_id")}
+                        for h in hits["hits"]]
+        raise ErroDeFonte(
+            "/api/search respondeu fora de qualquer formato conhecido; chaves: "
+            f"{sorted(dados)[:12] if isinstance(dados, dict) else type(dados).__name__}")
+
     def buscar(self, indice: str, termo: str = "", *, filtros: list[dict] | None = None,
                campos: Sequence[str] = (), busca_em: Sequence[str] = (),
                tamanho: int = 20, pagina: int = 1) -> list[dict]:
-        corpo = {
-            "requestState": {
-                "searchTerm": termo,
-                "filters": filtros or [],
-                "resultsPerPage": tamanho,
-                "current": pagina,
-            },
-            "queryConfig": {
-                "index": self.indice(indice),
-                "search_fields": {c: {} for c in busca_em},
-                "result_fields": {c: {"raw": {}} for c in campos},
-                "facets": {},
-            },
-        }
-        dados = self.post("/api/search", json=corpo)
-        if not isinstance(dados, dict) or "results" not in dados:
-            raise ErroDeFonte(
-                "/api/search fora do contrato; chaves recebidas: "
-                f"{sorted(dados)[:12] if isinstance(dados, dict) else type(dados)}")
-        return dados.get("results") or []
+        args = (indice, termo, filtros or [], campos, busca_em, tamanho, pagina)
+        # o formato ja negociado vem primeiro; na primeira chamada, todos entram
+        ordem = ([self.formato] if self.formato else []) + \
+                [f for f in self.FORMATOS if f != self.formato]
+        erros: list[str] = []
+        for formato in ordem:
+            try:
+                dados = self.post("/api/search", json=self._corpo(formato, *args))
+                resultados = self._extrair(dados)
+            except ErroDeFonte as err:
+                erros.append(f"{formato}: {str(err)[:120]}")
+                continue
+            if self.formato != formato:
+                self.formato = formato
+            return resultados
+        raise ErroDeFonte(
+            "/api/search recusou todos os formatos conhecidos — "
+            + " | ".join(erros))
 
     def por_ids(self, indice: str, ids: Iterable[str], *,
                 campos: Sequence[str] = ()) -> list[dict]:
