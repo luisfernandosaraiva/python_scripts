@@ -1,0 +1,350 @@
+{
+ "gerado_em": "2026-09-10T19:28:40+00:00",
+ "periodo": {
+  "inicio": 2021,
+  "fim": 2024
+ },
+ "qualis": {
+  "ciclo": "2017-2020",
+  "area": "BIOTECNOLOGIA",
+  "periodicos_com_estrato": 2
+ },
+ "ppgs": [
+  {
+   "sigla": "PPGBIOTEC",
+   "nome": "PPGBIOTEC",
+   "codigo_capes": "42014018003P9",
+   "area_capes": null,
+   "niveis": null,
+   "n_docentes": 2
+  }
+ ],
+ "coletas": [
+  {
+   "fonte": "capes_aberto",
+   "status": "ok",
+   "inicio": "2026-09-10T19:28:40.336174+00:00",
+   "fim": "2026-09-10T19:28:40.350538+00:00",
+   "documentos": 1,
+   "erro": null
+  },
+  {
+   "fonte": "qualis",
+   "status": "ok",
+   "inicio": "2026-09-10T19:28:40.326765+00:00",
+   "fim": "2026-09-10T19:28:40.335204+00:00",
+   "documentos": 1,
+   "erro": null
+  },
+  {
+   "fonte": "lattes_xml",
+   "status": "ok",
+   "inicio": "2026-09-10T19:28:40.309765+00:00",
+   "fim": "2026-09-10T19:28:40.326147+00:00",
+   "documentos": 1,
+   "erro": null
+  },
+  {
+   "fonte": "brcris",
+   "status": "ok",
+   "inicio": "2026-09-10T19:28:40.216986+00:00",
+   "fim": "2026-09-10T19:28:40.308748+00:00",
+   "documentos": 12,
+   "erro": null
+  }
+ ],
+ "pesquisadores": [
+  {
+   "id": 1,
+   "nome": "Ana Ribeiro Alencar",
+   "nome_exibicao": "Ana Ribeiro Alencar",
+   "lattes_id": "0123456789012345",
+   "orcid": "0000-0002-1111-2222",
+   "brcris_id": "p-alencar",
+   "curriculo_atualizado_em": "2026-03-14",
+   "ppg": "PPGBIOTEC",
+   "categoria": "permanente",
+   "nomes_citacao": [
+    "ALENCAR, A. R.",
+    "Alencar, Ana R."
+   ],
+   "indicadores": {
+    "obras_total": 5,
+    "obras_periodo": 5,
+    "artigos_total": 3,
+    "artigos_periodo": 3,
+    "pct_doi_periodo": 20.0,
+    "pct_doi_artigos": 33.3,
+    "pct_periodico_periodo": 40.0,
+    "orientacoes": 2,
+    "orientacoes_por_nivel": {
+     "mestrado": 1,
+     "doutorado": 1
+    },
+    "patentes": 0,
+    "software": 1,
+    "citacoes": 0,
+    "pct_coautoria_estrangeira": 0.0,
+    "periodicos_distintos": 2,
+    "sem_doi_sem_periodico": 3,
+    "ano_ambiguo": 1
+   },
+   "producao_por_ano": [
+    {
+     "ano": 2021,
+     "total": 2,
+     "artigo": 1,
+     "evento": 1,
+     "capitulo": 0,
+     "livro": 0,
+     "preprint": 0,
+     "tese": 0,
+     "outro": 0
+    },
+    {
+     "ano": 2022,
+     "total": 1,
+     "artigo": 1,
+     "evento": 0,
+     "capitulo": 0,
+     "livro": 0,
+     "preprint": 0,
+     "tese": 0,
+     "outro": 0
+    },
+    {
+     "ano": 2023,
+     "total": 1,
+     "artigo": 1,
+     "evento": 0,
+     "capitulo": 0,
+     "livro": 0,
+     "preprint": 0,
+     "tese": 0,
+     "outro": 0
+    },
+    {
+     "ano": 2024,
+     "total": 1,
+     "artigo": 0,
+     "evento": 0,
+     "capitulo": 1,
+     "livro": 0,
+     "preprint": 0,
+     "tese": 0,
+     "outro": 0
+    }
+   ],
+   "obras": [
+    {
+     "id": 6,
+     "titulo": "Micoses superficiais",
+     "tipo": "capitulo",
+     "ano": 2024,
+     "ano_ambiguo": false,
+     "doi": null,
+     "issn": null,
+     "periodico": null,
+     "estrato": null,
+     "citacoes": null,
+     "coautoria_estrangeira": null,
+     "fonte": "lattes_xml"
+    },
+    {
+     "id": 1,
+     "titulo": "Antifungal activity of native isolates",
+     "tipo": "artigo",
+     "ano": 2023,
+     "ano_ambiguo": false,
+     "doi": "10.1016/j.mycmed.2023.101",
+     "issn": "1156-5233",
+     "periodico": "Journal of Medical Mycology",
+     "estrato": "A2",
+     "citacoes": null,
+     "coautoria_estrangeira": null,
+     "fonte": "brcris"
+    },
+    {
+     "id": 5,
+     "titulo": "Prevalencia de onicomicose no Vale do Taquari",
+     "tipo": "artigo",
+     "ano": 2022,
+     "ano_ambiguo": false,
+     "doi": null,
+     "issn": "2176-9257",
+     "periodico": null,
+     "estrato": "B4",
+     "citacoes": null,
+     "coautoria_estrangeira": null,
+     "fonte": "lattes_xml"
+    },
+    {
+     "id": 2,
+     "titulo": "Acaros predadores em cultivos do Vale do Taquari",
+     "tipo": "artigo",
+     "ano": 2021,
+     "ano_ambiguo": true,
+     "doi": null,
+     "issn": null,
+     "periodico": "Revista Destaques Academicos",
+     "estrato": null,
+     "citacoes": null,
+     "coautoria_estrangeira": null,
+     "fonte": "brcris"
+    },
+    {
+     "id": 3,
+     "titulo": "Deteccao de dermatofitos em amostras clinicas",
+     "tipo": "evento",
+     "ano": 2021,
+     "ano_ambiguo": false,
+     "doi": null,
+     "issn": null,
+     "periodico": null,
+     "estrato": null,
+     "citacoes": null,
+     "coautoria_estrangeira": null,
+     "fonte": "brcris"
+    }
+   ],
+   "orientacoes": [
+    {
+     "orientando": "Bruno Costa",
+     "nivel": "doutorado",
+     "papel": "coorientacao",
+     "ano": 2024,
+     "situacao": "concluida",
+     "fonte": "brcris"
+    },
+    {
+     "orientando": "Ana Paula Silva",
+     "nivel": "mestrado",
+     "papel": "orientacao",
+     "ano": 2023,
+     "situacao": "concluida",
+     "fonte": "brcris"
+    }
+   ],
+   "tecnica": [
+    {
+     "tipo": "software",
+     "titulo": "Painel de vigilancia micologica",
+     "ano": 2024,
+     "situacao": null,
+     "numero": "BR512024000001",
+     "fonte": "lattes_xml"
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "nome": "Marcos Vinicius Prado",
+   "nome_exibicao": "Marcos Vinicius Prado",
+   "lattes_id": "1234567890123456",
+   "orcid": null,
+   "brcris_id": "p-prado",
+   "curriculo_atualizado_em": null,
+   "ppg": "PPGBIOTEC",
+   "categoria": "permanente",
+   "nomes_citacao": [
+    "PRADO, M. V."
+   ],
+   "indicadores": {
+    "obras_total": 2,
+    "obras_periodo": 2,
+    "artigos_total": 1,
+    "artigos_periodo": 1,
+    "pct_doi_periodo": 0.0,
+    "pct_doi_artigos": 0.0,
+    "pct_periodico_periodo": 0.0,
+    "orientacoes": 1,
+    "orientacoes_por_nivel": {
+     "doutorado": 1
+    },
+    "patentes": 1,
+    "software": 0,
+    "citacoes": 0,
+    "pct_coautoria_estrangeira": 0.0,
+    "periodicos_distintos": 0,
+    "sem_doi_sem_periodico": 2,
+    "ano_ambiguo": 1
+   },
+   "producao_por_ano": [
+    {
+     "ano": 2021,
+     "total": 1,
+     "artigo": 1,
+     "evento": 0,
+     "capitulo": 0,
+     "livro": 0,
+     "preprint": 0,
+     "tese": 0,
+     "outro": 0
+    },
+    {
+     "ano": 2024,
+     "total": 1,
+     "artigo": 0,
+     "evento": 0,
+     "capitulo": 1,
+     "livro": 0,
+     "preprint": 0,
+     "tese": 0,
+     "outro": 0
+    }
+   ],
+   "obras": [
+    {
+     "id": 4,
+     "titulo": "Capitulo sobre acarologia aplicada",
+     "tipo": "capitulo",
+     "ano": 2024,
+     "ano_ambiguo": false,
+     "doi": null,
+     "issn": null,
+     "periodico": null,
+     "estrato": null,
+     "citacoes": null,
+     "coautoria_estrangeira": null,
+     "fonte": "brcris"
+    },
+    {
+     "id": 2,
+     "titulo": "Acaros predadores em cultivos do Vale do Taquari",
+     "tipo": "artigo",
+     "ano": 2021,
+     "ano_ambiguo": true,
+     "doi": null,
+     "issn": null,
+     "periodico": "Revista Destaques Academicos",
+     "estrato": null,
+     "citacoes": null,
+     "coautoria_estrangeira": null,
+     "fonte": "brcris"
+    }
+   ],
+   "orientacoes": [
+    {
+     "orientando": "Carla Souza",
+     "nivel": "doutorado",
+     "papel": "orientacao",
+     "ano": 2022,
+     "situacao": "concluida",
+     "fonte": "brcris"
+    }
+   ],
+   "tecnica": [
+    {
+     "tipo": "patente",
+     "titulo": "Processo de controle biologico",
+     "ano": 2022,
+     "situacao": "depositada",
+     "numero": null,
+     "fonte": "brcris"
+    }
+   ]
+  }
+ ],
+ "exemplo": true,
+ "aviso": "Dados de demonstracao: pessoas e obras ficticias, geradas das fixtures de teste. Rode `python -m obsppg ingest` e `python -m obsppg export` para ver o PPG real."
+}

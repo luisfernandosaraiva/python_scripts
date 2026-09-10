@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Observatório PPG — ficha do pesquisador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="topo">
+  <div class="marca">
+    <span class="sigla">obsppg</span>
+    <span class="titulo">Observatório da Pós-Graduação</span>
+  </div>
+
+  <nav class="abas-topo" role="tablist" aria-label="Visões">
+    <button type="button" class="aba-topo ativa" data-visao="pesquisador" role="tab"
+            aria-selected="true">Pesquisador</button>
+    <button type="button" class="aba-topo" data-visao="programa" role="tab"
+            aria-selected="false">Programa</button>
+    <button type="button" class="aba-topo" data-visao="coleta" role="tab"
+            aria-selected="false">Coleta</button>
+  </nav>
+
+  <div class="controles">
+    <label class="campo">
+      <span>Programa</span>
+      <select id="filtro-ppg"></select>
+    </label>
+    <label class="campo">
+      <span>Período</span>
+      <span class="periodo">
+        <input type="number" id="periodo-inicio" min="1990" max="2100" step="1">
+        <i>–</i>
+        <input type="number" id="periodo-fim" min="1990" max="2100" step="1">
+      </span>
+    </label>
+    <p class="carimbo" id="carimbo"></p>
+  </div>
+</header>
+
+<p class="aviso" id="aviso" hidden></p>
+
+<div class="corpo">
+  <aside class="lista" aria-label="Pesquisadores">
+    <div class="busca">
+      <input type="search" id="busca" placeholder="Buscar por nome ou ID Lattes"
+             autocomplete="off" aria-label="Buscar pesquisador">
+      <p class="contagem" id="contagem"></p>
+    </div>
+    <ul id="pessoas"></ul>
+  </aside>
+
+  <main id="palco" tabindex="-1"></main>
+</div>
+
+<div id="tip" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>

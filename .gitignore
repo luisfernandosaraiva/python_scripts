@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+observatorio_ppg/data/
+observatorio_ppg/app/data.json
+.venv/

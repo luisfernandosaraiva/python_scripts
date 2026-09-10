@@ -1,0 +1,5 @@
+# Motor do Observatorio da Pos-Graduacao.
+# A interface e' HTML/CSS/JS puro e o servidor usa so a biblioteca padrao —
+# estas duas dependencias existem para o banco e para as chamadas HTTP.
+SQLAlchemy>=2.0,<3
+requests>=2.31,<3
