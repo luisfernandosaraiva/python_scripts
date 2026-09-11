@@ -158,11 +158,23 @@ plausíveis em ordem, guarda o que o servidor aceitou e usa só ele daí em dian
 A leitura da resposta é igualmente tolerante — aceita tanto `{"results": [...]}`
 do Search-UI quanto `{"hits": {"hits": [...]}}` de um proxy fino do Elasticsearch.
 O `doctor` informa qual formato passou; se nenhum passar, ele imprime o que cada
-tentativa recebeu de volta, que é o suficiente para acertar o conector de uma vez.
+tentativa recebeu de volta.
 
-Vale o mesmo aviso para o resto: `index-stats` e `/api/orientacoes` já são
-conferidos pelo `doctor`, mas `consulta-autores`, `consulta-publicacoes` e
-`/api/patent` só serão exercitados na coleta.
+Na primeira execução real, o formato observado na sondagem passou: o 400 anterior
+era o bootstrap mandando um nome vazio, não a API. A negociação ficou como rede de
+proteção, com `requestState` — o formato que de fato funciona — sempre em primeiro.
+
+Quando algum endpoint devolver vazio onde deveria ter dado, ou o conector precisar
+ser acertado a um formato diferente:
+
+```bash
+python -m obsppg doctor --bruto
+```
+
+Despeja a resposta crua de cada endpoint que a coleta usa — documento de pessoa,
+`/api/orientacoes` (com o `_id` e, se diferente, com o ID Lattes), `/api/patent`,
+`consulta-autores`, `consulta-publicacoes` e uma busca por `_id`. Uma execução
+mostra o formato de todos eles.
 
 ## Testes
 

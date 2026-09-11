@@ -215,9 +215,9 @@ def cmd_export(args: argparse.Namespace) -> int:
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:
-    from .doctor import rodar
+    from .doctor import bruto, rodar
 
-    return rodar(args.nome)
+    return bruto(args.nome) if args.bruto else rodar(args.nome)
 
 
 def cmd_status(args: argparse.Namespace) -> int:
@@ -308,6 +308,8 @@ def construir_parser() -> argparse.ArgumentParser:
     d = sub.add_parser("doctor", help="confere se as fontes respondem no contrato esperado")
     d.add_argument("--nome", default="Noeli Juarez Ferla",
                    help="nome usado na busca de prova contra o BrCris")
+    d.add_argument("--bruto", action="store_true",
+                   help="despeja as respostas cruas dos endpoints, para ajustar o conector")
     d.set_defaults(func=cmd_doctor)
 
     sub.add_parser("status", help="o que ja entrou no banco").set_defaults(func=cmd_status)

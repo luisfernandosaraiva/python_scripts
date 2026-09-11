@@ -192,20 +192,28 @@ class BrCris(ClienteHTTP):
         if isinstance(dados, list):
             return dados
         if isinstance(dados, dict):
-            for chave in ("results", "data", "documents", "items"):
+            for chave in ("results", "data", "documents", "items", "orientacoes",
+                          "advisees", "content"):
                 if isinstance(dados.get(chave), list):
                     return dados[chave]
             hits = dados.get("hits")
             if isinstance(hits, dict) and isinstance(hits.get("hits"), list):
                 return [{**(h.get("_source") or {}), "id": h.get("_id")}
                         for h in hits["hits"]]
+        if dados in (None, {}):
+            return []
         raise ErroDeFonte(
-            "/api/search respondeu fora de qualquer formato conhecido; chaves: "
+            "resposta fora de qualquer formato conhecido; chaves recebidas: "
             f"{sorted(dados)[:12] if isinstance(dados, dict) else type(dados).__name__}")
 
     def buscar(self, indice: str, termo: str = "", *, filtros: list[dict] | None = None,
                campos: Sequence[str] = (), busca_em: Sequence[str] = (),
                tamanho: int = 20, pagina: int = 1) -> list[dict]:
+        if not termo and not filtros:
+            # o servidor responde 400 "Search term or filters are required"; falhar
+            # aqui aponta o chamador, que e' onde o defeito de fato esta.
+            raise ErroDeFonte(
+                f"busca em '{indice}' sem termo e sem filtros — o BrCris exige um dos dois")
         args = (indice, termo, filtros or [], campos, busca_em, tamanho, pagina)
         # o formato ja negociado vem primeiro; na primeira chamada, todos entram
         ordem = ([self.formato] if self.formato else []) + \
@@ -248,20 +256,21 @@ class BrCris(ClienteHTTP):
         out: list[dict] = []
         ids = [str(i) for i in ids if i]
         for inicio in range(0, len(ids), LOTE):
-            resp = self.post(caminho, json={"ids": ids[inicio:inicio + LOTE]})
-            out.extend(resp if isinstance(resp, list) else resp.get("results", []))
+            out.extend(self._extrair(
+                self.post(caminho, json={"ids": ids[inicio:inicio + LOTE]})))
         return out
 
     def orientacoes(self, advisor_id: str) -> list[dict]:
-        resp = self.get("/api/orientacoes", params={"advisorId": advisor_id})
-        return resp if isinstance(resp, list) else resp.get("results", [])
+        # `_extrair` levanta em formato desconhecido em vez de devolver lista vazia:
+        # orientacao que some em silencio esvazia a dimensao de formacao do indice.
+        return self._extrair(self.get("/api/orientacoes",
+                                      params={"advisorId": advisor_id}))
 
     def coautoria(self, author_id: str) -> Any:
         return self.get("/api/coautoria", params={"authorId": author_id})
 
     def patentes(self, person_id: str) -> list[dict]:
-        resp = self.get("/api/patent", params={"personId": person_id})
-        return resp if isinstance(resp, list) else resp.get("results", [])
+        return self._extrair(self.get("/api/patent", params={"personId": person_id}))
 
     def stats(self, indice: str) -> Any:
         return self.get("/api/index-stats", params={"indexesName": self.indice(indice)})

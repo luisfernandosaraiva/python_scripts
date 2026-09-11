@@ -28,7 +28,14 @@ titulo() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 pulado()  { printf '   \033[2m(pulado) %s\033[0m\n' "$1"; }
 
 titulo "0. Conferindo as fontes antes de tocar no banco"
-python3 -m obsppg doctor --nome "$(grep -m1 -v '^\s*#' "$DOCENTES" | tr -d '\r')"
+# primeiro nome de verdade: descarta comentario E linha em branco. Sem o `$|`
+# aqui, o doctor recebia --nome "" e o BrCris respondia, com razao, 400.
+PRIMEIRO_NOME=$(grep -m1 -vE '^[[:space:]]*(#|$)' "$DOCENTES" | tr -d '\r')
+if [ -z "$PRIMEIRO_NOME" ]; then
+    echo "erro: $DOCENTES nao tem nenhum nome" >&2
+    exit 1
+fi
+python3 -m obsppg doctor --nome "$PRIMEIRO_NOME"
 
 titulo "1. Banco e programa"
 python3 -m obsppg init

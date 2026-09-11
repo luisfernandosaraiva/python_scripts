@@ -97,3 +97,52 @@ class NegociacaoTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class LeituraTolerantesTest(unittest.TestCase):
+    """Endpoint que devolve formato inesperado tem de gritar, nao devolver vazio.
+
+    Orientacao que some em silencio esvazia a dimensao de formacao do indice — e o
+    erro so apareceria muito depois, ja dentro do IPD.
+    """
+
+    def _api(self, resposta):
+        class Servidor(BrCris):
+            def __init__(self):
+                super().__init__(base="http://exemplo.invalido", pausa=0)
+
+            def get(self, caminho, **kwargs):
+                return resposta
+
+        return Servidor()
+
+    def test_lista_direta_e_lida(self):
+        api = self._api([{"id": "o-1"}, {"id": "o-2"}])
+        self.assertEqual(len(api.orientacoes("p-1")), 2)
+
+    def test_lista_embrulhada_em_chave_conhecida(self):
+        for chave in ("results", "orientacoes", "advisees", "content", "data"):
+            with self.subTest(chave=chave):
+                api = self._api({chave: [{"id": "o-1"}]})
+                self.assertEqual(len(api.orientacoes("p-1")), 1)
+
+    def test_vazio_legitimo_nao_levanta(self):
+        self.assertEqual(self._api([]).orientacoes("p-1"), [])
+        self.assertEqual(self._api({}).orientacoes("p-1"), [])
+
+    def test_formato_desconhecido_levanta_nomeando_as_chaves(self):
+        api = self._api({"total": 31, "payload": {"lista": [{"id": "o-1"}]}})
+        with self.assertRaises(ErroDeFonte) as caso:
+            api.orientacoes("p-1")
+        self.assertIn("payload", str(caso.exception))
+        self.assertIn("total", str(caso.exception))
+
+
+class BuscaVaziaTest(unittest.TestCase):
+    """O 400 da primeira coleta real foi um nome vazio chegando ao servidor."""
+
+    def test_sem_termo_e_sem_filtro_falha_antes_da_rede(self):
+        api = BrCris(base="http://exemplo.invalido", pausa=0)
+        with self.assertRaises(ErroDeFonte) as caso:
+            api.buscar("person", "")
+        self.assertIn("sem termo e sem filtros", str(caso.exception))

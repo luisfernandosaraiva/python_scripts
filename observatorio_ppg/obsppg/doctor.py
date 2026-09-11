@@ -16,7 +16,7 @@ from typing import Any, Callable
 
 from .config import CONFIG
 from .ingest.base import ClienteHTTP, ErroDeFonte
-from .ingest.brcris import BrCris, CAMPOS_PESSOA, lista, primeiro
+from .ingest.brcris import BrCris, CAMPOS_PESSOA, CAMPOS_PUBLICACAO, lista, primeiro
 
 OK, FALHA, ALERTA = "  ok  ", " falha", "aviso "
 
@@ -24,6 +24,62 @@ OK, FALHA, ALERTA = "  ok  ", " falha", "aviso "
 # por isso a conferencia e' campo a campo, e nao so "a API respondeu".
 ESSENCIAIS = ("id", "name", "lattesId")
 DESEJAVEIS = ("orcid", "citationName", "authorOf")
+
+
+def _amostra(rotulo: str, obter: Callable[[], Any], limite: int = 1400) -> None:
+    """Imprime a resposta crua de uma chamada, para acertar o conector de uma vez."""
+    import json
+
+    print(f"\n--- {rotulo} ---")
+    try:
+        dados = obter()
+    except Exception as err:
+        print(f"  falhou: {type(err).__name__}: {str(err)[:300]}")
+        return
+    texto = json.dumps(dados, ensure_ascii=False, indent=1)[:limite]
+    print(texto + ("\n  [...cortado]" if len(texto) >= limite else ""))
+
+
+def bruto(nome: str, api: BrCris | None = None) -> int:
+    """Despeja as respostas cruas dos endpoints que a coleta usa.
+
+    Serve para dois casos: quando um endpoint devolve vazio onde deveria ter dado
+    (e' preciso ver *o que* ele devolveu), e quando o conector precisa ser ajustado
+    a um formato diferente do observado.
+    """
+    api = api or BrCris()
+    resultados = api.buscar("person", nome, campos=CAMPOS_PESSOA,
+                            busca_em=("name", "citationName"), tamanho=3)
+    if not resultados:
+        print(f"'{nome}' nao retornou ninguem no indice de pessoas.", file=sys.stderr)
+        return 2
+
+    doc = resultados[0]
+    pessoa_id = str(primeiro(doc.get("id")) or "")
+    lattes = str(primeiro(doc.get("lattesId")) or "")
+    obras = [str(x) for x in lista(doc.get("authorOf"))][:3]
+
+    print(f"formato do corpo aceito: {api.formato}")
+    _amostra("documento de pessoa (primeiro resultado)", lambda: doc, limite=2200)
+    _amostra(f"/api/orientacoes?advisorId={pessoa_id}",
+             lambda: api.get("/api/orientacoes", params={"advisorId": pessoa_id}))
+    if lattes and lattes != pessoa_id:
+        # hipotese: o endpoint pode esperar o ID Lattes, nao o _id do indice
+        _amostra(f"/api/orientacoes?advisorId={lattes} (tentativa com ID Lattes)",
+                 lambda: api.get("/api/orientacoes", params={"advisorId": lattes}))
+    _amostra(f"/api/patent?personId={pessoa_id}",
+             lambda: api.get("/api/patent", params={"personId": pessoa_id}))
+    _amostra(f"/api/consulta-autores (ids=[{pessoa_id}])",
+             lambda: api.post("/api/consulta-autores", json={"ids": [pessoa_id]}))
+    if obras:
+        _amostra(f"/api/consulta-publicacoes (ids={obras})",
+                 lambda: api.post("/api/consulta-publicacoes", json={"ids": obras}))
+        _amostra("uma publicacao pelo /api/search com filtro _id",
+                 lambda: api.buscar("publication",
+                                    filtros=[{"field": "_id", "type": "any",
+                                              "values": obras[:1]}],
+                                    campos=CAMPOS_PUBLICACAO, tamanho=1))
+    return 0
 
 
 class Resultado:
@@ -90,6 +146,9 @@ def checar_brcris(nome: str, api: BrCris | None = None) -> tuple[str, str]:
         return ALERTA, (recado + f" · /api/orientacoes falhou ({str(err)[:80]}): "
                         "a dimensao de formacao ficaria vazia")
     recado += f" · {len(orientandos)} orientandos em /api/orientacoes"
+    if obras and not orientandos:
+        return ALERTA, (recado + " — zero orientandos em quem tem producao e' suspeito; "
+                        "rode `python -m obsppg doctor --bruto` para ver a resposta crua")
     return (ALERTA if ausentes else OK), recado
 
 
