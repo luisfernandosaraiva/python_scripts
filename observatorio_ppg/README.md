@@ -176,6 +176,22 @@ Despeja a resposta crua de cada endpoint que a coleta usa — documento de pesso
 `consulta-autores`, `consulta-publicacoes` e uma busca por `_id`. Uma execução
 mostra o formato de todos eles.
 
+### O que a primeira execução real ensinou (10/09/2026)
+
+As fixtures de teste hoje reproduzem os formatos **medidos**, não os supostos:
+
+| Campo | Formato real | O que quebrava antes |
+|---|---|---|
+| `authorOf` | lista de **objetos** `{id, title, type, publicationDate}` | tratado como ID, mandava o `repr` do dicionário ao lote — busca por `_id` voltava vazia, sem erro |
+| `/api/orientacoes` | `{id, name, advisees: [...]}`, `advisorId` = `_id` do índice | `results` ausente devolvia lista vazia em silêncio; com o ID Lattes vem vazio de verdade |
+| `lattesId` | lista de um elemento | — |
+| títulos | com entidade HTML (`&amp;`) e em caixa baixa | `&amp;` ia cru para a tela |
+| `/api/patent` | lista direta, vazia para quem não tem patente | vazio legítimo não pode virar erro |
+
+Uma consequência boa: como o `authorOf` já traz título, tipo e data, a obra citada
+que o índice de publicações não devolve **entra assim mesmo**, com o que há. Na
+sondagem eram 6 obras em 1.340; antes, sumiam.
+
 ## Testes
 
 ```bash

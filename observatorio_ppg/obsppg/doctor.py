@@ -16,7 +16,14 @@ from typing import Any, Callable
 
 from .config import CONFIG
 from .ingest.base import ClienteHTTP, ErroDeFonte
-from .ingest.brcris import BrCris, CAMPOS_PESSOA, CAMPOS_PUBLICACAO, lista, primeiro
+from .ingest.brcris import (
+    BrCris,
+    CAMPOS_PESSOA,
+    CAMPOS_PUBLICACAO,
+    ConectorBrCris,
+    lista,
+    primeiro,
+)
 
 OK, FALHA, ALERTA = "  ok  ", " falha", "aviso "
 
@@ -57,7 +64,9 @@ def bruto(nome: str, api: BrCris | None = None) -> int:
     doc = resultados[0]
     pessoa_id = str(primeiro(doc.get("id")) or "")
     lattes = str(primeiro(doc.get("lattesId")) or "")
-    obras = [str(x) for x in lista(doc.get("authorOf"))][:3]
+    # authorOf traz objetos, nao IDs — o mesmo engano que quebrou o conector
+    itens = [ConectorBrCris._item_de_authorof(i) for i in lista(doc.get("authorOf"))]
+    obras = [i["id"] for i in itens if i][:3]
 
     print(f"formato do corpo aceito: {api.formato}")
     _amostra("documento de pessoa (primeiro resultado)", lambda: doc, limite=2200)

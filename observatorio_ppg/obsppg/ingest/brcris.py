@@ -17,6 +17,7 @@ como `ErroDeFonte` com as chaves recebidas, que e o que torna o conserto rapido.
 
 from __future__ import annotations
 
+import html
 import re
 import unicodedata
 from typing import Any, Iterable, Sequence
@@ -373,6 +374,24 @@ class ConectorBrCris(Conector):
     # ------------------------------------------------------------------ #
     # 2. obras — authorOf -> lote por _id
     # ------------------------------------------------------------------ #
+    @staticmethod
+    def _item_de_authorof(item: Any) -> dict | None:
+        """Normaliza um item de `authorOf`.
+
+        A API devolve **objetos** — `{id, title, title_text, type, publicationDate}` —
+        e nao IDs. Tratado como string, o `repr` do dicionario virava o "ID" mandado
+        ao lote e a busca por `_id` voltava vazia, sem erro nenhum.
+
+        O objeto ja traz titulo, tipo e data: e' base suficiente para gravar a obra
+        mesmo que o lote de publicacoes falhe. Do indice de publicacoes vem o que
+        falta aqui — DOI, periodico e ISSN.
+        """
+        if isinstance(item, dict):
+            ref = str(primeiro(item.get("id")) or "").strip()
+            return {**item, "id": ref} if ref else None
+        ref = str(valor(item) or "").strip()
+        return {"id": ref} if ref else None
+
     def ingerir_obras(self, pessoa: Faculty, *, desempate: str = "menor") -> int:
         if not pessoa.brcris_id:
             return 0
@@ -381,26 +400,38 @@ class ConectorBrCris(Conector):
             raise ErroDeFonte(f"pessoa {pessoa.brcris_id} nao retornou documento")
         self.gravar_raw(docs, ref=f"person/{pessoa.brcris_id}")
 
-        ids_obras = [str(x) for x in lista(docs[0].get("authorOf")) if x]
+        embutidas = [x for x in (self._item_de_authorof(i)
+                                 for i in lista(docs[0].get("authorOf"))) if x]
         anteriores = len(self.s.scalars(
             select(Authorship).where(Authorship.faculty_id == pessoa.id)).all())
-        if not ids_obras:
-            self.exigir_nao_vazio(ids_obras, f"authorOf de {pessoa.full_name}", anteriores)
+        if not embutidas:
+            self.exigir_nao_vazio(embutidas, f"authorOf de {pessoa.full_name}",
+                                  anteriores)
             return 0
 
-        publicacoes = self.api.por_ids("publication", ids_obras, campos=CAMPOS_PUBLICACAO)
+        ids_obras = [i["id"] for i in embutidas]
+        publicacoes = self.api.por_ids("publication", ids_obras,
+                                       campos=CAMPOS_PUBLICACAO)
+        if not publicacoes:
+            # o filtro _id nao trouxe nada: tenta o endpoint de lote antes de
+            # desistir do enriquecimento
+            publicacoes = self.api.consulta_publicacoes(ids_obras)
         self.gravar_raw(publicacoes, ref=f"publication/de/{pessoa.brcris_id}")
+
+        por_id = {str(primeiro(p.get("id"))): p for p in publicacoes}
         # IDs citados em authorOf que nao retornam documento sao registrados como
         # perda de recuperacao, nao silenciados: na sondagem foram 6 em 1.340.
-        recuperados = {str(primeiro(p.get("id"))) for p in publicacoes}
-        faltantes = [i for i in ids_obras if i not in recuperados]
+        faltantes = [i for i in ids_obras if i not in por_id]
         if faltantes:
             self.gravar_raw({"pessoa": pessoa.brcris_id, "nao_recuperados": faltantes},
                             ref=f"publication/faltantes/{pessoa.brcris_id}")
 
         novas = 0
-        for pub in publicacoes:
-            obra = self._gravar_obra(pub, desempate=desempate)
+        for embutida in embutidas:
+            # o documento do indice manda no que ele tem; o objeto embutido cobre o
+            # resto, e sozinho ja basta para a obra existir
+            completa = {**embutida, **por_id.get(embutida["id"], {})}
+            obra = self._gravar_obra(completa, desempate=desempate)
             if obra is None:
                 continue
             ja = self.s.scalar(select(Authorship).where(
@@ -414,7 +445,8 @@ class ConectorBrCris(Conector):
 
     def _gravar_obra(self, pub: dict, *, desempate: str = "menor") -> Work | None:
         ref = str(primeiro(pub.get("id")) or "")
-        titulo = str(primeiro(pub.get("title")) or "").strip()
+        titulo = html.unescape(str(primeiro(pub.get("title"))
+                                   or primeiro(pub.get("title_text")) or "")).strip()
         if not titulo:
             return None
 

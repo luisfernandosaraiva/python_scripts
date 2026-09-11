@@ -1,5 +1,5 @@
 {
- "gerado_em": "2026-09-10T19:28:40+00:00",
+ "gerado_em": "2026-09-11T00:07:16+00:00",
  "periodo": {
   "inicio": 2021,
   "fim": 2024
@@ -23,32 +23,32 @@
   {
    "fonte": "capes_aberto",
    "status": "ok",
-   "inicio": "2026-09-10T19:28:40.336174+00:00",
-   "fim": "2026-09-10T19:28:40.350538+00:00",
+   "inicio": "2026-09-11T00:07:16.791038+00:00",
+   "fim": "2026-09-11T00:07:16.798759+00:00",
    "documentos": 1,
    "erro": null
   },
   {
    "fonte": "qualis",
    "status": "ok",
-   "inicio": "2026-09-10T19:28:40.326765+00:00",
-   "fim": "2026-09-10T19:28:40.335204+00:00",
+   "inicio": "2026-09-11T00:07:16.785128+00:00",
+   "fim": "2026-09-11T00:07:16.790466+00:00",
    "documentos": 1,
    "erro": null
   },
   {
    "fonte": "lattes_xml",
    "status": "ok",
-   "inicio": "2026-09-10T19:28:40.309765+00:00",
-   "fim": "2026-09-10T19:28:40.326147+00:00",
+   "inicio": "2026-09-11T00:07:16.773279+00:00",
+   "fim": "2026-09-11T00:07:16.784730+00:00",
    "documentos": 1,
    "erro": null
   },
   {
    "fonte": "brcris",
    "status": "ok",
-   "inicio": "2026-09-10T19:28:40.216986+00:00",
-   "fim": "2026-09-10T19:28:40.308748+00:00",
+   "inicio": "2026-09-11T00:07:16.716170+00:00",
+   "fim": "2026-09-11T00:07:16.772500+00:00",
    "documentos": 12,
    "erro": null
   }
@@ -69,12 +69,12 @@
     "Alencar, Ana R."
    ],
    "indicadores": {
-    "obras_total": 5,
+    "obras_total": 6,
     "obras_periodo": 5,
-    "artigos_total": 3,
+    "artigos_total": 4,
     "artigos_periodo": 3,
     "pct_doi_periodo": 20.0,
-    "pct_doi_artigos": 33.3,
+    "pct_doi_artigos": 25.0,
     "pct_periodico_periodo": 40.0,
     "orientacoes": 2,
     "orientacoes_por_nivel": {
@@ -90,6 +90,17 @@
     "ano_ambiguo": 1
    },
    "producao_por_ano": [
+    {
+     "ano": 2020,
+     "total": 1,
+     "artigo": 1,
+     "evento": 0,
+     "capitulo": 0,
+     "livro": 0,
+     "preprint": 0,
+     "tese": 0,
+     "outro": 0
+    },
     {
      "ano": 2021,
      "total": 2,
@@ -137,7 +148,7 @@
    ],
    "obras": [
     {
-     "id": 6,
+     "id": 7,
      "titulo": "Micoses superficiais",
      "tipo": "capitulo",
      "ano": 2024,
@@ -165,7 +176,7 @@
      "fonte": "brcris"
     },
     {
-     "id": 5,
+     "id": 6,
      "titulo": "Prevalencia de onicomicose no Vale do Taquari",
      "tipo": "artigo",
      "ano": 2022,
@@ -180,7 +191,7 @@
     },
     {
      "id": 2,
-     "titulo": "Acaros predadores em cultivos do Vale do Taquari",
+     "titulo": "Acaros predadores & parasitas em cultivos do Vale do Taquari",
      "tipo": "artigo",
      "ano": 2021,
      "ano_ambiguo": true,
@@ -197,6 +208,20 @@
      "titulo": "Deteccao de dermatofitos em amostras clinicas",
      "tipo": "evento",
      "ano": 2021,
+     "ano_ambiguo": false,
+     "doi": null,
+     "issn": null,
+     "periodico": null,
+     "estrato": null,
+     "citacoes": null,
+     "coautoria_estrangeira": null,
+     "fonte": "brcris"
+    },
+    {
+     "id": 4,
+     "titulo": "Obra citada que nao retorna documento",
+     "tipo": "artigo",
+     "ano": 2020,
      "ano_ambiguo": false,
      "doi": null,
      "issn": null,
@@ -295,7 +320,7 @@
    ],
    "obras": [
     {
-     "id": 4,
+     "id": 5,
      "titulo": "Capitulo sobre acarologia aplicada",
      "tipo": "capitulo",
      "ano": 2024,
@@ -310,7 +335,7 @@
     },
     {
      "id": 2,
-     "titulo": "Acaros predadores em cultivos do Vale do Taquari",
+     "titulo": "Acaros predadores & parasitas em cultivos do Vale do Taquari",
      "tipo": "artigo",
      "ano": 2021,
      "ano_ambiguo": true,

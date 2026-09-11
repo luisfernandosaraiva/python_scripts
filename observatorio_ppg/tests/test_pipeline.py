@@ -60,6 +60,22 @@ class PipelineTest(unittest.TestCase):
             self.assertIsInstance(pessoa.lattes_id, str)
             self.assertIn("ALENCAR, A. R.", [c.name for c in pessoa.citation_names])
 
+    def test_obra_sem_documento_no_indice_sobrevive_pelo_authorof(self):
+        with sessao(self.banco) as s:
+            self._coletar_brcris(s)
+            fantasma = s.scalar(select(Work).where(Work.fonte_ref == "w-fantasma"))
+            self.assertIsNotNone(fantasma, "authorOf ja traz titulo, tipo e data")
+            self.assertEqual(fantasma.ano, 2020)
+            self.assertEqual(fantasma.tipo, "artigo")
+            self.assertIsNone(fantasma.doi, "sem documento no indice, nao ha DOI")
+
+    def test_titulo_vem_sem_entidade_html(self):
+        with sessao(self.banco) as s:
+            self._coletar_brcris(s)
+            obra = s.scalar(select(Work).where(Work.fonte_ref == "w-2"))
+            self.assertIn("&", obra.titulo)
+            self.assertNotIn("&amp;", obra.titulo)
+
     def test_obra_compartilhada_gera_duas_autorias_e_uma_obra(self):
         with sessao(self.banco) as s:
             self._coletar_brcris(s)
@@ -169,12 +185,16 @@ class PipelineTest(unittest.TestCase):
             pessoa = s.scalar(select(Faculty).where(Faculty.brcris_id == "p-alencar"))
             ind = indicadores_do_pesquisador(s, pessoa, inicio=2021, fim=2024)
             self.assertEqual(ind["obras_periodo"], 3)
-            self.assertEqual(ind["artigos_total"], 2)
+            # 3, e nao 2: a obra citada em authorOf que o indice de publicacoes nao
+            # devolve entra assim mesmo, com o titulo e a data que vem embutidos no
+            # proprio authorOf. Na sondagem foram 6 obras em 1.340 nessa situacao.
+            self.assertEqual(ind["artigos_total"], 3)
             self.assertEqual(ind["orientacoes"], 2)
             self.assertEqual(ind["pct_doi_periodo"], 33.3)
 
             serie = producao_por_ano([w for w in s.scalars(select(Work)).all()])
-            self.assertEqual([p["ano"] for p in serie], [2021, 2023, 2024])
+            # 2020 entra pela obra que so existe no authorOf
+            self.assertEqual([p["ano"] for p in serie], [2020, 2021, 2023, 2024])
 
             destino = exportar(s, self.tmp / "data.json", inicio=2021, fim=2024,
                                ciclo_qualis="2017-2020", area_qualis="BIOTECNOLOGIA")
